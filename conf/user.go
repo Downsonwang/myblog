@@ -1,16 +1,10 @@
-package models
-
-type SystemInfo struct {
-	AppName             string
-	Version             float32
-	CurrentDir          string
-	GitHookUrl          string
-	AppRepository       string
-	DocumentDir         string
-	DocumentAssetsDir   string
-	DocumentContentDir  string
-	DocumentExtraNavDir string
-}
+/*
+ * @Descripttion:
+ * @Author:
+ * @Date: 2023-12-19 20:25:24
+ * @LastEditTime: 2023-12-19 20:26:11
+ */
+package conf
 
 type HomeInfo struct {
 	SiteName string `json:"siteName"`

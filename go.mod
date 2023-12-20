@@ -1,8 +1,11 @@
 module blogdemo
 
-go 1.17
+go 1.21.5
 
-require github.com/gin-gonic/gin v1.9.1
+require (
+	github.com/gin-gonic/gin v1.9.1
+	github.com/yuin/goldmark v1.6.0
+)
 
 require (
 	github.com/bytedance/sonic v1.9.1 // indirect

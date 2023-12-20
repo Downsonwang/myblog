@@ -1,13 +1,7 @@
-/*
- * @Descripttion:  read config
- * @Author: DW
- * @Date: 2023-12-17 20:46:08
- * @LastEditTime: 2023-12-17 21:33:52
- */
-package pkg
+package conf
 
 import (
-	"blogdemo/models"
+	"blogdemo/utils"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,8 +12,8 @@ import (
 )
 
 type Config struct {
-	models.HomeInfo
-	models.SystemInfo
+	HomeInfo
+	SystemInfo
 }
 
 var Cfg Config
@@ -52,10 +46,10 @@ func init() {
 	}
 
 	Cfg.AppName = "Boke"
-	Cfg.Version = 1.0
+	Cfg.Version = 3.0
 	Cfg.DocumentDir = Cfg.CurrentDir + "/" + repoName
-	Cfg.GitHookUrl = "/api/get_hook"
-	Cfg.AppRepository = "https://github.com/Downsonwang/myblog.git"
+	Cfg.GitHookUrl = "/api/git_push_hook"
+	Cfg.AppRepository = "https://github.com/Downsonwang/myblog"
 }
 
 func GetRepoName(gitUrl string) (string, error) {
@@ -72,15 +66,15 @@ func CheckInit() {
 		fmt.Println("请先安装git")
 		panic(err)
 	}
-	if !IsDir(Cfg.DocumentDir) {
+	if !utils.IsDir(Cfg.DocumentDir) {
 		fmt.Println("正在克隆文档仓库，请稍等...")
-		out, err := RunCmdByDir(Cfg.CurrentDir, "git", "clone", Cfg.DocumentGitUrl)
+		out, err := utils.RunCmdByDir(Cfg.CurrentDir, "git", "clone", Cfg.DocumentGitUrl)
 		if err != nil {
 			panic(err)
 		}
 		fmt.Println(out)
 	} else {
-		out, err := RunCmdByDir(Cfg.DocumentDir, "git", "pull")
+		out, err := utils.RunCmdByDir(Cfg.DocumentDir, "git", "pull")
 		fmt.Println(out)
 		if err != nil {
 			panic(err)
@@ -93,9 +87,23 @@ func CheckInit() {
 	}
 
 	imgDir := Cfg.CurrentDir + "/images"
-	if !IsDir(imgDir) {
+	if !utils.IsDir(imgDir) {
 		if os.Mkdir(imgDir, os.ModePerm) != nil {
 			panic("生成images目录失败！")
 		}
 	}
+}
+
+func checkDocDirAndBindConfig(cfg *Config) error {
+	dirs := []string{"assets", "content", "extra_nav"}
+	for _, dir := range dirs {
+		absoluteDir := Cfg.DocumentDir + "/" + dir
+		if !utils.IsDir(absoluteDir) {
+			return errors.New("documents cannot lack " + absoluteDir + " dir")
+		}
+	}
+	cfg.DocumentAssetsDir = cfg.DocumentDir + "/assets"
+	cfg.DocumentContentDir = cfg.DocumentDir + "/content"
+	cfg.DocumentExtraNavDir = cfg.DocumentDir + "/extra_nav"
+	return nil
 }

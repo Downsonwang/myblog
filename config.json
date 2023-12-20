@@ -1,10 +1,10 @@
 {
-    "port": 8080,
+    "port": 8081,
     "pageSize": 3,
     "descriptionLen": 200,
     "author": "Downson",
-    "icp": "黔ICP备15004120号",
-    "webHookSecret": "Downson",
+    "icp": "",
+    "webHookSecret": "downson",
     "categoryDisplayQuantity": 6,
     "tagDisplayQuantity": 6,
     "utterancesRepo": "Downsonwang/blog_docs",
