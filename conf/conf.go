@@ -75,6 +75,7 @@ func CheckInit() {
 		fmt.Println(out)
 	} else {
 		out, err := utils.RunCmdByDir(Cfg.DocumentDir, "git", "pull")
+		fmt.Println(Cfg.DocumentDir)
 		fmt.Println(out)
 		if err != nil {
 			panic(err)

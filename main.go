@@ -2,7 +2,7 @@
  * @Descripttion:  BLOG
  * @Author:  DW
  * @Date: 2023-12-17 17:45:17
- * @LastEditTime: 2023-12-20 15:40:18
+ * @LastEditTime: 2023-12-21 12:32:24
  */
 package main
 
@@ -20,9 +20,9 @@ func init() {
 
 func main() {
 	r := route.InitRoute()
-
+	conf.CheckInit()
 	s := &http.Server{
-		Addr:    "154.8.202.7:" + fmt.Sprintf("%d", conf.Cfg.Port),
+		Addr:    "0.0.0.0:" + fmt.Sprintf("%d", conf.Cfg.Port),
 		Handler: r,
 	}
 	if err := s.ListenAndServe(); err != nil {
