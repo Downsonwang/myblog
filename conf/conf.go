@@ -30,7 +30,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-
+	//fmt.Println(pathFile)
 	err = json.Unmarshal(pathFile, &Cfg)
 	if err != nil {
 		panic(err)
@@ -41,6 +41,8 @@ func init() {
 	}
 
 	repoName, err := GetRepoName(Cfg.DocumentGitUrl)
+	fmt.Println(Cfg.CurrentDir)
+	fmt.Println(repoName)
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +51,7 @@ func init() {
 	Cfg.Version = 3.0
 	Cfg.DocumentDir = Cfg.CurrentDir + "/" + repoName
 	Cfg.GitHookUrl = "/api/git_push_hook"
-	Cfg.AppRepository = "https://github.com/Downsonwang/myblog"
+	Cfg.AppRepository = "git@github.com:Downsonwang/myblog"
 }
 
 func GetRepoName(gitUrl string) (string, error) {
@@ -69,9 +71,13 @@ func CheckInit() {
 	if !utils.IsDir(Cfg.DocumentDir) {
 		fmt.Println("正在克隆文档仓库，请稍等...")
 		out, err := utils.RunCmdByDir(Cfg.CurrentDir, "git", "clone", Cfg.DocumentGitUrl)
+		fmt.Println(Cfg.CurrentDir)
+		fmt.Println(Cfg.DocumentGitUrl)
 		if err != nil {
 			panic(err)
 		}
+		//fmt.Println(Cfg.CurrentDir)
+		//fmt.Println(Cfg.DocumentGitUrl)
 		fmt.Println(out)
 	} else {
 		out, err := utils.RunCmdByDir(Cfg.DocumentDir, "git", "pull")
