@@ -2,8 +2,9 @@
  * @Descripttion:
  * @Author:
  * @Date: 2023-12-19 20:25:24
- * @LastEditTime: 2023-12-19 20:26:11
+ * @LastEditTime: 2023-12-22 22:45:35
  */
+ // DWs
 package conf
 
 type HomeInfo struct {
