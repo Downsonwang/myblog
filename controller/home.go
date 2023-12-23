@@ -1,10 +1,11 @@
 /*
- * @Descripttion:
- * @Author:
+ * @Descripttion:init home page
+ * @Author: DW
  * @Date: 2023-12-18 10:33:25
  * @LastEditTime: 2023-12-22 22:46:06
  */
 package controller
+
 // DW
 import (
 	"blogdemo/conf"

@@ -1,10 +1,10 @@
 /*
- * @Descripttion:
- * @Author:
+ * @Descripttion:Recommend the html template
+ * @Author:DW
  * @Date: 2023-12-19 20:25:24
- * @LastEditTime: 2023-12-22 22:45:35
+ * @LastEditTime: 2023-12-23 17:31:26
  */
- // DWs
+
 package conf
 
 type HomeInfo struct {

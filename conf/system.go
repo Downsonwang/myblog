@@ -1,8 +1,8 @@
 /*
- * @Descripttion:
- * @Author:
+ * @Descripttion: set the system info like currentdi and so on to get docs
+ * @Author:DW
  * @Date: 2023-12-19 20:25:19
- * @LastEditTime: 2023-12-22 22:45:31
+ * @LastEditTime: 2023-12-23 17:30:38
  */
 // DW
 package conf

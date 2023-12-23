@@ -2,7 +2,7 @@
  * @Descripttion: template
  * @Author: DW
  * @Date: 2023-12-18 10:37:51
- * @LastEditTime: 2023-12-19 20:35:19
+ * @LastEditTime: 2023-12-23 17:36:34
  */
 package models
 
@@ -31,7 +31,7 @@ type HtmlTemplate struct {
 var Template HtmlTemplate
 
 func (t TemplatePointer) WriteData(w io.Writer, data interface{}) {
-	// 渲染模版将数据填充
+
 	err := t.Execute(w, data)
 	if err != nil {
 		if _, e := w.Write([]byte(err.Error())); e != nil {
@@ -94,6 +94,7 @@ func readHtmlTemplate(htmlFileName string, viewDir string) (TemplatePointer, err
 	return TemplatePointer{tp}, nil
 }
 
+// BuildViewHtml.
 func BuildViewData(title string, data interface{}) map[string]interface{} {
 	return map[string]interface{}{
 		"Title":  title,

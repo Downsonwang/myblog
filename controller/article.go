@@ -2,9 +2,9 @@
  * @Descripttion: Article
  * @Author: DW
  * @Date: 2023-12-18 13:58:17
- * @LastEditTime: 2023-12-19 10:41:34
+ * @LastEditTime: 2023-12-23 17:34:36
  */
- // DW
+// DW
 package controller
 
 import (
@@ -15,15 +15,15 @@ import (
 
 func Article(c *gin.Context) {
 	articleTemplate := models.Template.Article
-	// 解析表单数据
+	//
 	if err := c.Request.ParseForm(); err != nil {
 		articleTemplate.WriteError(c.Writer, err)
 		return
 	}
-	// 获取文章的键值
+	// key
 	key := c.Request.Form.Get("key")
 
-	// 获取文章的路径
+	//  local path
 	path := models.ArticleShortUrlMap[key]
 
 	articleDetail, err := models.ReadArticleDetail(path)

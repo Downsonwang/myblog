@@ -31,7 +31,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Println(pathFile)
+
 	err = json.Unmarshal(pathFile, &Cfg)
 	if err != nil {
 		panic(err)
@@ -42,8 +42,7 @@ func init() {
 	}
 
 	repoName, err := GetRepoName(Cfg.DocumentGitUrl)
-	fmt.Println(Cfg.CurrentDir)
-	fmt.Println(repoName)
+
 	if err != nil {
 		panic(err)
 	}
@@ -55,6 +54,7 @@ func init() {
 	Cfg.AppRepository = "git@github.com:Downsonwang/myblog"
 }
 
+// Get RepoName docs by urlArr[len(urlArr)-1]
 func GetRepoName(gitUrl string) (string, error) {
 	if !strings.HasSuffix(gitUrl, ".git") {
 		return "", errors.New("git Url must end with .git")
@@ -64,6 +64,7 @@ func GetRepoName(gitUrl string) (string, error) {
 	return urlArr[len(urlArr)-1], nil
 }
 
+// CheckInit git clone or git pull docs
 func CheckInit() {
 	if _, err := exec.LookPath("git"); err != nil {
 		fmt.Println("请先安装git")
@@ -72,18 +73,15 @@ func CheckInit() {
 	if !utils.IsDir(Cfg.DocumentDir) {
 		fmt.Println("正在克隆文档仓库，请稍等...")
 		out, err := utils.RunCmdByDir(Cfg.CurrentDir, "git", "clone", Cfg.DocumentGitUrl)
-		fmt.Println(Cfg.CurrentDir)
-		fmt.Println(Cfg.DocumentGitUrl)
+
 		if err != nil {
 			panic(err)
 		}
-		//fmt.Println(Cfg.CurrentDir)
-		//fmt.Println(Cfg.DocumentGitUrl)
+
 		fmt.Println(out)
 	} else {
-		out, err := utils.RunCmdByDir(Cfg.DocumentDir, "git", "pull")
-		fmt.Println(Cfg.DocumentDir)
-		fmt.Println(out)
+		_, err := utils.RunCmdByDir(Cfg.DocumentDir, "git", "pull")
+
 		if err != nil {
 			panic(err)
 		}
@@ -102,6 +100,7 @@ func CheckInit() {
 	}
 }
 
+// check the docs files
 func checkDocDirAndBindConfig(cfg *Config) error {
 	dirs := []string{"assets", "content", "extra_nav"}
 	for _, dir := range dirs {
