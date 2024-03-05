@@ -1,9 +1,3 @@
-<!--
- * @Descripttion: 
- * @Author: 
- * @Date: 2023-12-17 17:34:16
- * @LastEditTime: 2023-12-19 22:17:29
--->
 {{template "header" .}}
 <div class="sub-title">- {{ .Title }} -</div>
 
@@ -43,7 +37,7 @@
                     <span>发表于{{ .Date.Format "2006-01-02 15:04" }}</span>
                 </span>
         </div>
-        <div class="description"> {{ .Desc }}...</div>
+        <div class="description"> {{ .Description }}...</div>
         <a class="read-all" href="/article?key={{ .ShortUrl }}" rel="contents">
             阅读全文 »
         </a>

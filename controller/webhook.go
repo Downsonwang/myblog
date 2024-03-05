@@ -1,25 +1,29 @@
 /*
- * @Descripttion: githubhook
- * @Author:DW
- * @Date: 2023-12-18 20:51:06
- * @LastEditTime: 2023-12-22 22:46:12
+ * @Descripttion:
+ * @Author: DW
+ * @Date: 2023-12-17 17:34:16
+ * @LastEditTime: 2024-03-04 19:15:47
  */
 package controller
 
-// DW
 import (
 	"blogdemo/models"
+	"fmt"
 	"net/http"
-
-	"github.com/gin-gonic/gin"
 )
 
-func GithubHook(c *gin.Context) {
-	SedResponse(c, http.StatusOK, "ok")
+func GithubHook(w http.ResponseWriter, r *http.Request) {
+
+	SedResponse(w, "ok")
+
 	models.CompiledContent()
 }
 
-func SedResponse(c *gin.Context, status int, msg string) {
-	c.JSON(status, gin.H{
-		"msg": msg})
+func SedResponse(w http.ResponseWriter, msg string) {
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	_, err := w.Write([]byte(`{"msg": "` + msg + `"}`))
+	if err != nil {
+		fmt.Println(err)
+	}
 }

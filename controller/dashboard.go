@@ -1,42 +1,34 @@
-/*
- * @Descripttion:
- * @Author:
- * @Date: 2023-12-19 10:51:43
- * @LastEditTime: 2023-12-22 22:45:49
- */
 package controller
 
 import (
-	"blogdemo/conf"
+	"blogdemo/config"
 	"blogdemo/models"
+	"net/http"
 	"strconv"
-
-	"github.com/gin-gonic/gin"
 )
 
-// DW
-func Dashboard(c *gin.Context) {
+func Dashboard(w http.ResponseWriter, r *http.Request) {
 
 	var dashboardMsg []string
 	dashboardTemplate := models.Template.Dashboard
 
-	if err := c.Request.ParseForm(); err != nil {
-		dashboardTemplate.WriteError(c.Writer, err)
+	if err := r.ParseForm(); err != nil {
+		dashboardTemplate.WriteError(w, err)
 	}
 
-	index, err := strconv.Atoi(c.Request.Form.Get("theme"))
-	if err == nil && index < len(conf.Cfg.ThemeOption) {
-		conf.Cfg.ThemeColor = conf.Cfg.ThemeOption[index]
+	index, err := strconv.Atoi(r.Form.Get("theme"))
+	if err == nil && index < len(config.Cfg.ThemeOption) {
+		config.Cfg.ThemeColor = config.Cfg.ThemeOption[index]
 		dashboardMsg = append(dashboardMsg, "颜色切换成功!")
 	}
 
-	action := c.Request.Form.Get("action")
+	action := r.Form.Get("action")
 	if "updateArticle" == action {
 		models.CompiledContent()
 		dashboardMsg = append(dashboardMsg, "文章更新成功!")
 	}
 
-	dashboardTemplate.WriteData(c.Writer, models.BuildViewData("Dashboard", map[string]interface{}{
+	dashboardTemplate.WriteData(w, models.BuildViewData("Dashboard", map[string]interface{}{
 		"msg": dashboardMsg,
 	}))
 

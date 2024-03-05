@@ -1,9 +1,3 @@
-/*
- * @Descripttion:
- * @Author:DW
- * @Date: 2023-12-19 20:37:33
- * @LastEditTime: 2023-12-23 17:30:21
- */
 package utils
 
 import (

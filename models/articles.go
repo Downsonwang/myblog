@@ -1,14 +1,9 @@
-/*
- * @Descripttion:
- * @Author:
- * @Date: 2023-12-17 22:21:32
- * @LastEditTime: 2023-12-23 17:35:32
- */
 package models
 
 import (
-	"blogdemo/conf"
+	"blogdemo/config"
 	"blogdemo/utils"
+
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -21,55 +16,68 @@ import (
 	"github.com/yuin/goldmark"
 )
 
+type Time time.Time
+
 type Article struct {
-	Title    string   `json:"title"`
-	Desc     string   `json:"Desc"`
-	Tags     []string `json:"tags"`
-	Author   string   `json:"author"`
-	Path     string
-	ShortUrl string
-	Category string
-	Date     time.Time `json:"date"`
+	Title       string   `json:"title"`
+	Date        Time     `json:"date"`
+	Description string   `json:"description"`
+	Tags        []string `json:"tags"`
+	Author      string   `json:"author"`
+	MusicId     string   `json:"musicId"`
+	Path        string
+	ShortUrl    string
+	Category    string
 }
 
 type Articles []Article
+
 type ArticleDetail struct {
 	Article
 	Body string
 }
 
-var ArticleList Articles
+func initArticlesAndImages(dir string) (Articles, map[string]string, error) {
+	var articles Articles
+	shortUrlMap := make(map[string]string)
 
-type Category struct {
-	Name     string
-	Quantity int
-	Articles Articles
+	articles, err := RecursiveReadArticles(dir)
+	if err != nil {
+		return articles, shortUrlMap, err
+	}
+	sort.Sort(articles)
+	for i := len(articles) - 1; i >= 0; i-- {
+		//这里必须使用倒序的方式生成 shortUrl,因为如果有相同的文章标题，
+		// 倒序会将最老的文章优先生成shortUrl，保证和之前的 shortUrl一样
+		article := articles[i]
+		keyword := utils.GenerateShortUrl(article.Title, func(url, keyword string) bool {
+			//保证 keyword 唯一
+			_, ok := shortUrlMap[keyword]
+			return !ok
+		})
+		articles[i].ShortUrl = keyword
+		shortUrlMap[keyword] = article.Path
+	}
+	return articles, shortUrlMap, nil
 }
-type Categories []Category
-
-type Tag struct {
-	Name     string
-	Quantity int
-	Articles Articles
-}
-
-type Tags []Tag
 
 func ArticleSearch(articles *Articles, search, category, tag string) Articles {
+
 	var articleList Articles
 	for _, article := range *articles {
-		pass := true
-		if search != "" && !strings.Contains(article.Title, search) {
-			pass = false
-		}
-		if category != "" && !strings.Contains(article.Category, category) {
-			pass = false
-		}
 
+		pass := true
+
+		if search != "" && strings.Index(article.Title, search) == -1 {
+			pass = false
+		}
+		if category != "" && strings.Index(article.Category, category) == -1 {
+			pass = false
+		}
 		if tag != "" {
 			pass = false
 			for _, tagItem := range article.Tags {
-				if !strings.Contains(tagItem, tag) {
+				if strings.Index(tagItem, tag) != -1 {
 					pass = true
 					break
 				}
@@ -78,6 +86,7 @@ func ArticleSearch(articles *Articles, search, category, tag string) Articles {
 		if pass {
 			articleList = append(articleList, article)
 		}
+
 	}
 	return articleList
 }
@@ -120,7 +129,7 @@ func RecursiveReadArticles(dir string) (Articles, error) {
 			strings.HasSuffix(upperName, ".GIF") ||
 			strings.HasSuffix(upperName, ".JPG") {
 
-			dst := conf.Cfg.CurrentDir + "/images/" + name
+			dst := config.Cfg.CurrentDir + "/images/" + name
 			if !utils.IsFile(dst) {
 				_, _ = utils.CopyFile(path, dst)
 			}
@@ -138,101 +147,6 @@ func ReadArticle(path string) (Article, error) {
 	return article, nil
 }
 
-func GetCategoryName(path string) string {
-	var categoryName string
-	newPath := strings.Replace(path, conf.Cfg.DocumentContentDir+"/", "", 1)
-
-	if !strings.Contains(newPath, "/") { //文件在根目录下(content/)没有分类名称
-		categoryName = "未分类"
-	} else {
-		categoryName = strings.Split(newPath, "/")[0]
-	}
-	return categoryName
-}
-
-func GroupByCategory(articles *Articles, articleQuantity int) Categories {
-	var categories Categories
-	categoryMap := make(map[string]Articles)
-
-	for _, article := range *articles {
-		_, existedCategory := categoryMap[article.Category]
-		if existedCategory {
-			categoryMap[article.Category] = append(categoryMap[article.Category], article)
-		} else {
-			categoryMap[article.Category] = Articles{article}
-		}
-	}
-	for categoryName, articles := range categoryMap {
-		articleLen := len(articles)
-
-		var articleList Articles
-		if articleQuantity <= 0 {
-			articleList = articles
-		} else {
-			if articleQuantity > articleLen {
-				articleList = articles[0:articleLen]
-			} else {
-				articleList = articles[0:articleQuantity]
-			}
-		}
-		categories = append(categories, Category{
-			Name:     categoryName,
-			Quantity: articleLen,
-			Articles: articleList,
-		})
-	}
-	sort.Sort(categories)
-	return categories
-}
-
-func (c Categories) Len() int { return len(c) }
-
-func (c Categories) Less(i, j int) bool { return c[i].Quantity > c[j].Quantity }
-
-func (c Categories) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
-
-func GroupByTag(articles *Articles, articleQuantity int) Tags {
-	var tags Tags
-	tagMap := make(map[string]Articles)
-	for _, article := range *articles {
-		for _, tag := range article.Tags {
-			_, exsitedCategory := tagMap[tag]
-			if exsitedCategory {
-				tagMap[tag] = append(tagMap[tag], article)
-			} else {
-				tagMap[tag] = Articles{article}
-			}
-		}
-	}
-
-	for categoryName, articleItem := range tagMap {
-		articleLen := len(articleItem)
-		var articleList Articles
-		if articleQuantity <= 0 {
-			articleList = articleItem
-		} else {
-			if articleQuantity > articleLen {
-				articleList = articleItem[0:articleLen]
-			} else {
-				articleList = articleItem[0:articleQuantity]
-			}
-		}
-		tags = append(tags, Tag{
-			Name:     categoryName,
-			Quantity: articleLen,
-			Articles: articleList,
-		})
-	}
-	sort.Sort(tags)
-	return tags
-}
-
-func (c Tags) Len() int { return len(c) }
-
-func (c Tags) Less(i, j int) bool { return c[i].Quantity > c[j].Quantity }
-
-func (c Tags) Swap(i, j int) { c[i], c[j] = c[j], c[i] }
-
 func ReadArticleDetail(path string) (ArticleDetail, error) {
 	_, articleDetail, err := readMarkdown(path)
 	if err != nil {
@@ -245,6 +159,7 @@ func readMarkdown(path string) (Article, ArticleDetail, error) {
 	var article Article
 	var articleDetail ArticleDetail
 	mdFile, err := os.Stat(path)
+
 	if err != nil {
 		return article, articleDetail, err
 	}
@@ -252,6 +167,7 @@ func readMarkdown(path string) (Article, ArticleDetail, error) {
 		return article, articleDetail, errors.New("this path is Dir")
 	}
 	markdown, err := ioutil.ReadFile(path)
+
 	if err != nil {
 		return article, articleDetail, err
 	}
@@ -260,21 +176,23 @@ func readMarkdown(path string) (Article, ArticleDetail, error) {
 	article.Path = path
 	article.Category = GetCategoryName(path)
 	article.Title = strings.TrimSuffix(strings.ToUpper(mdFile.Name()), ".MD")
-	article.Date = time.Time(mdFile.ModTime())
+	article.Date = Time(mdFile.ModTime())
 
 	if !bytes.HasPrefix(markdown, []byte("```json")) {
-		article.Desc = cropDesc(markdown)
+		article.Description = cropDesc(markdown)
 		articleDetail.Article = article
 		articleDetail.Body = string(markdown)
 		return article, articleDetail, nil
 	}
+
 	markdown = bytes.Replace(markdown, []byte("```json"), []byte(""), 1)
 	markdownArrInfo := bytes.SplitN(markdown, []byte("```"), 2)
-	article.Desc = cropDesc(markdownArrInfo[1])
+
+	article.Description = cropDesc(markdownArrInfo[1])
 
 	if err := json.Unmarshal(bytes.TrimSpace(markdownArrInfo[0]), &article); err != nil {
 		article.Title = "文章[" + article.Title + "]解析 JSON 出错，请检查。"
-		article.Desc = err.Error()
+		article.Description = err.Error()
 		return article, articleDetail, nil
 	}
 	article.Path = path
@@ -296,11 +214,29 @@ func cropDesc(c []byte) string {
 	content := []rune(string(c))
 	contentLen := len(content)
 
-	if contentLen <= conf.Cfg.DescriptionLen {
+	if contentLen <= config.Cfg.DescriptionLen {
 		return string(content[0:contentLen])
 	}
 
-	return string(content[0:conf.Cfg.DescriptionLen])
+	return string(content[0:config.Cfg.DescriptionLen])
+}
+
+func (t *Time) UnmarshalJSON(b []byte) error {
+	date, err := time.ParseInLocation(`"`+config.Cfg.TimeLayout+`"`, string(b), time.Local)
+	if err != nil {
+		return nil
+	}
+	*t = Time(date)
+	return nil
+}
+
+func (t Time) MarshalJSON() ([]byte, error) {
+
+	return []byte(t.Format(`"` + config.Cfg.TimeLayout + `"`)), nil
+}
+
+func (t Time) Format(layout string) string {
+	return time.Time(t).Format(layout)
 }
 
 func (a Articles) Len() int { return len(a) }
@@ -308,27 +244,3 @@ func (a Articles) Len() int { return len(a) }
 func (a Articles) Less(i, j int) bool { return time.Time(a[i].Date).After(time.Time(a[j].Date)) }
 
 func (a Articles) Swap(i, j int) { a[i], a[j] = a[j], a[i] }
-
-func initArticlesAndImages(dir string) (Articles, map[string]string, error) {
-	var articles Articles
-	shortUrlMap := make(map[string]string)
-
-	articles, err := RecursiveReadArticles(dir)
-	if err != nil {
-		return articles, shortUrlMap, err
-	}
-	sort.Sort(articles)
-	for i := len(articles) - 1; i >= 0; i-- {
-		//这里必须使用倒序的方式生成 shortUrl,因为如果有相同的文章标题，
-		// 倒序会将最老的文章优先生成shortUrl，保证和之前的 shortUrl一样
-		article := articles[i]
-		keyword := utils.GenerateShortUrl(article.Title, func(url, keyword string) bool {
-			//保证 keyword 唯一
-			_, ok := shortUrlMap[keyword]
-			return !ok
-		})
-		articles[i].ShortUrl = keyword
-		shortUrlMap[keyword] = article.Path
-	}
-	return articles, shortUrlMap, nil
-}

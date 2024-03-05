@@ -1,9 +1,3 @@
-<!--
- * @Descripttion: 
- * @Author: 
- * @Date: 2023-12-17 17:34:16
- * @LastEditTime: 2023-12-19 22:30:22
--->
 {{template "header" .}}
 <div class="sub-title">- {{ .Title }} -</div>
 
@@ -38,7 +32,12 @@
             <span>发表于{{ .Data.Date.Format "2006-01-02 15:04" }}</span>
         </span>
 </div>
-
+{{ if ne .Data.MusicId "" }}
+<div class="music">
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" height=86
+            src="//music.163.com/outchain/player?type=2&id={{ .Data.MusicId }}&auto=0&height=66"></iframe>
+</div>
+{{ end }}
 <div  class="article markdow">
     {{  .Data.Body }}
 </div>

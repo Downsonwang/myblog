@@ -1,10 +1,8 @@
-/*
- * @Descripttion:分页情况
- * @Author:DW
- * @Date: 2023-12-18 11:34:38
- * @LastEditTime: 2023-12-23 17:36:09
- */
 package models
+
+import (
+	"math"
+)
 
 type PageResult struct {
 	List      Articles `json:"list"`
@@ -15,36 +13,36 @@ type PageResult struct {
 }
 
 func Pagination(articles *Articles, page int, pageSize int) PageResult {
-	len := len(*articles)
-	totalPage := len / pageSize
 
-	if (len % pageSize) != 0 {
+	articleLen := len(*articles)
+	totalPage := int(math.Floor(float64(articleLen / pageSize)))
+
+	if (articleLen % pageSize) != 0 {
 		totalPage++
 	}
 	result := PageResult{
-		Total:     len,
+		Total:     articleLen,
 		Page:      page,
 		PageSize:  pageSize,
 		TotalPage: totalPage,
 	}
-
 	if page < 1 {
 		result.Page = 1
 	}
-
 	if page > result.TotalPage {
-		result.Page = result.TotalPage
+		result.Page  = result.TotalPage
 	}
 
-	if len <= result.PageSize {
-		result.List = (*articles)[0:len]
+	if articleLen <= result.PageSize {
+		result.List = (*articles)[0:articleLen]
 	} else {
 		startNum := (result.Page - 1) * result.PageSize
 		endNum := startNum + result.PageSize
-		if endNum > len {
-			endNum = len
+		if endNum > articleLen {
+			endNum = articleLen
 		}
 		result.List = (*articles)[startNum:endNum]
 	}
+
 	return result
 }

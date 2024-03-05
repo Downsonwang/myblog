@@ -1,31 +1,31 @@
 /*
- * @Descripttion:  BLOG
- * @Author:  DW
- * @Date: 2023-12-17 17:45:17
- * @LastEditTime: 2023-12-22 21:16:24
+ * @Descripttion:
+ * @Author:
+ * @Date: 2023-12-17 17:34:16
+ * @LastEditTime: 2024-03-04 19:11:19
  */
 package main
 
 import (
-	"blogdemo/conf"
+	"blogdemo/config"
 	"blogdemo/models"
-	"blogdemo/route"
+	"blogdemo/routes"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func init() {
-	models.CompiledContent() ////克隆或者更新文章、递归生成文章、导航、短链 Map、加载模板
+	models.CompiledContent() //克隆或者更新文章、递归生成文章、导航、短链 Map、加载模板
 }
 
 func main() {
-	r := route.InitRoute()
 
-	s := &http.Server{
-		Addr:    "127.0.0.1:" + fmt.Sprintf("%d", conf.Cfg.Port),
-		Handler: r,
-	}
-	if err := s.ListenAndServe(); err != nil {
-		fmt.Println(err)
+	routes.InitRoute()
+	fmt.Printf("Version：v%v \n", config.Cfg.Version)
+	fmt.Printf("ListenAndServe On Port %v \n", config.Cfg.Port)
+	fmt.Printf("UpdateArticle's GitHookUrl: %v   Secret:  %v \n", config.Cfg.GitHookUrl, config.Cfg.WebHookSecret)
+	if err := http.ListenAndServe(":"+strconv.Itoa(config.Cfg.Port), nil); err != nil {
+		fmt.Println("ServeErr:", err)
 	}
 }

@@ -1,22 +1,16 @@
-/*
- * @Descripttion:tag
- * @Author: DW
- * @Date: 2023-12-18 13:39:23
- * @LastEditTime: 2023-12-19 20:42:10
- */
 package controller
-// DW
-import (
-	"blogdemo/conf"
-	"blogdemo/models"
 
-	"github.com/gin-gonic/gin"
+import (
+	"blogdemo/config"
+	"blogdemo/models"
+	"net/http"
 )
 
-func Tag(c *gin.Context) {
+func Tag(w http.ResponseWriter, r *http.Request) {
+
 	tagsTemplate := models.Template.Tags
 
-	result := models.GroupByTag(&models.ArticleList, conf.Cfg.TagDisplayQuantity)
+	result := models.GroupByTag(&models.ArticleList, config.Cfg.TagDisplayQuantity)
 
-	tagsTemplate.WriteData(c.Writer, models.BuildViewData("Tags", result))
+	tagsTemplate.WriteData(w, models.BuildViewData("Tags", result))
 }

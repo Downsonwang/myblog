@@ -1,9 +1,3 @@
-/*
- * @Descripttion:
- * @Author:
- * @Date: 2023-12-19 20:32:54
- * @LastEditTime: 2023-12-19 20:33:06
- */
 package utils
 
 import (
@@ -19,6 +13,7 @@ func IsDir(name string) bool {
 	}
 	return false
 }
+
 
 func IsFile(filename string) bool {
 	existed := true
@@ -36,10 +31,12 @@ func MakeDir(dir string) error {
 }
 
 func RemoveDir(dir string) error {
+
 	if !IsDir(dir) {
-		return errors.New("Cannot delete without directroy")
+		return  errors.New("cannot delete without directory")
 	}
-	return os.RemoveAll(dir)
+
+	return  os.RemoveAll(dir)
 }
 
 func CopyFile(src, dst string) (int64, error) {
@@ -47,20 +44,22 @@ func CopyFile(src, dst string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+
 	if !sourceFileStat.Mode().IsRegular() {
 		return 0, fmt.Errorf("%s is not a regular file", src)
 	}
+
 	source, err := os.Open(src)
 	if err != nil {
 		return 0, err
 	}
 	defer source.Close()
 
-	des, err := os.Create(dst)
+	destination, err := os.Create(dst)
 	if err != nil {
 		return 0, err
 	}
-	defer des.Close()
-	nBytes, err := io.Copy(des, source)
+	defer destination.Close()
+	nBytes, err := io.Copy(destination, source)
 	return nBytes, err
 }
